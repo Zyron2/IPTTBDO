@@ -15,6 +15,7 @@ class Application extends Model
     public const BRANCH_TECH_TRANSFER = 'tech_transfer';
     public const BRANCH_BUSINESS_DEVELOPMENT = 'business_development';
     public const BRANCH_INCUBATION = 'incubation';
+    public const BRANCH_CONSULTATION = 'consultation';
 
     public const STATUS_FOR_EVALUATION = 'for_evaluation';
     public const STATUS_REVIEWED = 'reviewed';
@@ -57,6 +58,7 @@ class Application extends Model
             self::BRANCH_TECH_TRANSFER => 'Tech Transfer / Commercialization',
             self::BRANCH_BUSINESS_DEVELOPMENT => 'Business Development',
             self::BRANCH_INCUBATION => 'Incubation',
+            self::BRANCH_CONSULTATION => 'Consultation',
         ];
     }
 

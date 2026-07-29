@@ -1,69 +1,112 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <section class="rounded-[2rem] border border-white/10 bg-slate-900/70 p-6">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <p class="text-sm uppercase tracking-[0.3em] text-amber-300/80">Review details</p>
-                    <h2 class="mt-2 text-2xl font-semibold text-white">{{ $application->tracking_no }}</h2>
-                    <p class="mt-2 text-slate-400">{{ $application->title }}</p>
+<div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] animate-slide-up">
+    <section class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <div class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                    <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-widest">Review details</span>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('applications.download', $application) }}" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10">Download</a>
-                    @if(auth()->user()->isAdmin())
-                        <a href="{{ route('applications.edit', $application) }}" class="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-300">Edit</a>
-                    @endif
-                </div>
+                <h2 class="mt-2 text-lg font-semibold text-gray-900 font-mono">{{ $application->tracking_no }}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{ $application->title }}</p>
             </div>
-
-            <dl class="mt-6 grid gap-4 sm:grid-cols-2">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <dt class="text-sm text-slate-400">Branch</dt>
-                    <dd class="mt-2 text-white">{{ $application->branchLabel() }}</dd>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <dt class="text-sm text-slate-400">Type</dt>
-                    <dd class="mt-2 text-white">{{ $application->formTypeLabel() }}</dd>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <dt class="text-sm text-slate-400">Status</dt>
-                    <dd class="mt-2 text-white">{{ $application->statusLabel() }}</dd>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <dt class="text-sm text-slate-400">Date filed</dt>
-                    <dd class="mt-2 text-white">{{ optional($application->date_filed)->format('M d, Y') }}</dd>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:col-span-2">
-                    <dt class="text-sm text-slate-400">Submitted by</dt>
-                    <dd class="mt-2 text-white">{{ $application->submittedBy?->name }} / {{ $application->submittedBy?->email }}</dd>
-                </div>
-            </dl>
-
-            <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-sm text-slate-400">Description</p>
-                <p class="mt-2 whitespace-pre-line text-slate-100">{{ $application->description }}</p>
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ route('applications.download', $application) }}" class="group inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm active:scale-95">
+                    <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Download
+                </a>
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('applications.edit', $application) }}" class="inline-flex items-center rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-amber-600 hover:to-amber-500 hover:shadow-lg hover:shadow-amber-200/50 active:scale-95">
+                    <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                </a>
+                @endif
             </div>
+        </div>
 
-            <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-sm text-slate-400">Remarks</p>
-                <p class="mt-2 whitespace-pre-line text-slate-100">{{ $application->remarks ?: 'No remarks yet.' }}</p>
+        <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Branch</dt>
+                <dd class="mt-1.5 font-medium text-gray-900">{{ $application->branchLabel() }}</dd>
             </div>
-        </section>
-
-        <aside class="rounded-[2rem] border border-white/10 bg-white/5 p-6">
-            <p class="text-sm uppercase tracking-[0.3em] text-amber-300/80">Payload</p>
-            <h3 class="mt-2 text-xl font-semibold text-white">Branch-specific details</h3>
-            <div class="mt-4 space-y-3 text-sm text-slate-300">
-                @forelse(($application->payload ?? []) as $key => $value)
-                    <div class="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
-                        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">{{ str_replace('_', ' ', $key) }}</p>
-                        <p class="mt-2 whitespace-pre-line text-slate-100">{{ is_array($value) ? json_encode($value) : $value }}</p>
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Type</dt>
+                <dd class="mt-1.5 font-medium text-gray-900">{{ $application->formTypeLabel() }}</dd>
+            </div>
+            @if($application->branch === 'consultation' && !empty($application->payload['consultation_date']))
+            <div class="rounded-lg border border-blue-100 bg-blue-50/50 p-4 sm:col-span-2 transition hover:bg-blue-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-blue-600">Consultation Appointment Details</dt>
+                <dd class="mt-2 grid gap-2 sm:grid-cols-2">
+                    @if(!empty($application->payload['consultation_date']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Preferred Date:</span>
+                        <span class="ml-1.5 text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($application->payload['consultation_date'])->format('F j, Y') }}</span>
                     </div>
-                @empty
-                    <div class="rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-slate-400">No extra payload stored yet.</div>
-                @endforelse
+                    @endif
+                    @if(!empty($application->payload['consultation_time']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Preferred Time:</span>
+                        <span class="ml-1.5 text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($application->payload['consultation_time'])->format('g:i A') }}</span>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['consultation_reason']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Reason for Consultation:</span>
+                        <p class="mt-1 text-sm text-gray-900">{{ $application->payload['consultation_reason'] }}</p>
+                    </div>
+                    @endif
+                </dd>
             </div>
-        </aside>
-    </div>
+            @endif
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Status</dt>
+                <dd class="mt-1.5">
+                    <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200/50">{{ $application->statusLabel() }}</span>
+                </dd>
+            </div>
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Date filed</dt>
+                <dd class="mt-1.5 font-medium text-gray-900">{{ optional($application->date_filed)->format('M d, Y') }}</dd>
+            </div>
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 sm:col-span-2 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Submitted by</dt>
+                <dd class="mt-1.5 font-medium text-gray-900">{{ $application->submittedBy?->name }} <span class="text-gray-400">/</span> {{ $application->submittedBy?->email }}</dd>
+            </div>
+        </dl>
+
+        <div class="mt-6 rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Description</p>
+            <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $application->description }}</p>
+        </div>
+
+        <div class="mt-4 rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Remarks</p>
+            <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $application->remarks ?: 'No remarks yet.' }}</p>
+        </div>
+    </section>
+
+    <aside class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+        <div class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+            <span class="text-[11px] font-semibold text-amber-700 uppercase tracking-widest">Payload</span>
+        </div>
+        <h3 class="mt-2 text-base font-semibold text-gray-900">Branch-specific details</h3>
+        <div class="mt-4 space-y-3 text-sm">
+            @forelse(($application->payload ?? []) as $key => $value)
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <p class="text-xs uppercase tracking-wider text-gray-500">{{ str_replace('_', ' ', $key) }}</p>
+                <p class="mt-1.5 whitespace-pre-line text-gray-700">{{ is_array($value) ? json_encode($value) : $value }}</p>
+            </div>
+            @empty
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 text-gray-400">No extra payload stored yet.</div>
+            @endforelse
+        </div>
+    </aside>
+</div>
 @endsection

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewConsultationRequest;
 
 class ApplicationController extends Controller
 {
@@ -40,6 +43,46 @@ class ApplicationController extends Controller
         ]);
     }
 
+    public function ipServices()
+    {
+        return view('applications.ip-services');
+    }
+
+    public function ipConsultation()
+    {
+        return view('applications.ip-consultation');
+    }
+
+    public function storeIpConsultation(Request $request)
+    {
+        $data = $request->validate([
+            'consultation_date' => ['required', 'date', 'after_or_equal:today'],
+            'consultation_time' => ['required', 'date_format:H:i'],
+            'proponent_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $application = Application::create([
+            'branch' => 'ip',
+            'application_type' => 'consultation',
+            'title' => 'IP Consultation - ' . $data['proponent_name'],
+            'proponent_name' => $data['proponent_name'],
+            'submitted_by' => $request->user()->id,
+            'tracking_no' => Application::generateTrackingNo('ip'),
+            'status' => Application::STATUS_FOR_EVALUATION,
+            'date_filed' => now()->toDateString(),
+            'payload' => [
+                'consultation_date' => $data['consultation_date'],
+                'consultation_time' => $data['consultation_time'],
+            ],
+        ]);
+
+        $admins = User::where('role', 'admin')->get();
+        Notification::send($admins, new NewConsultationRequest($application));
+
+        return redirect()->route('applications.show', $application)
+            ->with('success', 'Consultation appointment submitted successfully. An admin will review your request.');
+    }
+
     public function create()
     {
         return view('applications.create', [
@@ -60,6 +103,12 @@ class ApplicationController extends Controller
             'status' => $data['status'] ?? Application::STATUS_FOR_EVALUATION,
             'date_filed' => $data['date_filed'] ?? now()->toDateString(),
         ]);
+
+        // Notify all admins if consultation is requested
+        if ($application->branch === 'consultation') {
+            $admins = User::where('role', 'admin')->get();
+            Notification::send($admins, new \App\Notifications\NewConsultationRequest($application));
+        }
 
         return redirect()->route('applications.show', $application)->with('success', 'Application submitted successfully.');
     }
@@ -91,8 +140,9 @@ class ApplicationController extends Controller
     public function update(Request $request, Application $application)
     {
         $this->authorizeAdmin($request);
+        $data = $this->validatedData($request);
 
-        $application->update($this->validatedData($request));
+        $application->update($data);
 
         return redirect()->route('applications.show', $application)->with('success', 'Application updated successfully.');
     }
@@ -121,7 +171,7 @@ class ApplicationController extends Controller
 
     private function validatedData(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'branch' => ['required', 'string'],
             'application_type' => ['nullable', 'string'],
             'title' => ['required', 'string', 'max:255'],
@@ -135,6 +185,8 @@ class ApplicationController extends Controller
             'viewed_details' => ['nullable', 'string'],
             'payload' => ['nullable', 'array'],
         ]);
+
+        return $data;
     }
 
     private function authorizeAdmin(Request $request): void
