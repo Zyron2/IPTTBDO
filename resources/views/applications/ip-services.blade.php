@@ -18,7 +18,7 @@
     <p class="mt-1 text-gray-500">Select an IP service to get started</p>
 
     <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <a href="{{ route('applications.create', ['branch' => 'ip', 'type' => 'prior_art']) }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-blue-200">
+        <a href="{{ route('applications.ip-prior-art-search') }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-blue-200">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div class="relative">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all group-hover:bg-blue-100 group-hover:scale-110 group-hover:shadow-sm">
@@ -37,7 +37,7 @@
             </div>
         </a>
 
-        <a href="{{ route('applications.create', ['branch' => 'ip', 'type' => 'claims_drafting']) }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-indigo-200">
+        <a href="{{ route('applications.ip-claims-drafting') }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-indigo-200">
             <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div class="relative">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-all group-hover:bg-indigo-100 group-hover:scale-110 group-hover:shadow-sm">

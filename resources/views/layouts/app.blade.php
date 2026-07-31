@@ -50,6 +50,8 @@
             &copy; {{ date('Y') }} IPTTBDO System &mdash; Innovation Portal for IP, Tech Transfer &amp; Business Development
         </div>
     </footer>
+
+    @stack('scripts')
 </body>
 
 </html>

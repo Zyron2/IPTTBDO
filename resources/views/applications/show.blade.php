@@ -39,7 +39,91 @@
                 <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Type</dt>
                 <dd class="mt-1.5 font-medium text-gray-900">{{ $application->formTypeLabel() }}</dd>
             </div>
-            @if($application->branch === 'consultation' && !empty($application->payload['consultation_date']))
+            @if(in_array($application->application_type, ['prior_art', 'claims_drafting']))
+            <div class="rounded-lg border border-blue-100 bg-blue-50/50 p-4 sm:col-span-2 transition hover:bg-blue-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-blue-600">{{ $application->application_type === 'prior_art' ? 'Prior Art Search Details' : 'IP Claims Drafting Details' }}</dt>
+                <dd class="mt-2 space-y-3">
+                    @if(!empty($application->payload['search_terms']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Search Terms:</span>
+                        <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['search_terms'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['overview_1']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Overview — Layperson's description:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['overview_1'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['overview_2']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Overview — Application / unmet need:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['overview_2'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['technical_description']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Technical Description:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['technical_description'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['development_stage']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Stage of Development:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['development_stage'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['sponsorship']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Sponsorship:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['sponsorship'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['agreements']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Other Agreements and Interactions:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{{ $application->payload['agreements'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['material_used']) && $application->payload['material_used'] === 'yes')
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Used materials from company/institution:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">YES — {{ $application->payload['material_used_details'] ?? 'No details provided' }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['material_transferred']) && $application->payload['material_transferred'] === 'yes')
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Transferred materials to outside researcher:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">YES — {{ $application->payload['material_transferred_details'] ?? 'No details provided' }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['other_group_using']) && $application->payload['other_group_using'] === 'yes')
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Other group/lab using the invention:</span>
+                        <p class="mt-0.5 text-sm text-gray-900 whitespace-pre-line">YES — {{ $application->payload['other_group_details'] ?? 'No details provided' }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['inventors']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Inventors:</span>
+                        <ul class="mt-0.5 space-y-1 text-sm text-gray-900">
+                            @foreach($application->payload['inventors'] as $inventor)
+                            @if(!empty($inventor['name']))
+                            <li>{{ $inventor['name'] }}@if(!empty($inventor['role'])) <span class="text-gray-500">({{ $inventor['role'] }})</span>@endif</li>
+                            @endif
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['corresponding_inventor']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Corresponding Inventor:</span>
+                        <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['corresponding_inventor'] }} @if(!empty($application->payload['corresponding_inventor_date'])) — {{ $application->payload['corresponding_inventor_date'] }} @endif</p>
+                    </div>
+                    @endif
+                </dd>
+            </div>
+            @elseif($application->branch === 'consultation' && !empty($application->payload['consultation_date']))
             <div class="rounded-lg border border-blue-100 bg-blue-50/50 p-4 sm:col-span-2 transition hover:bg-blue-50 hover:shadow-sm">
                 <dt class="text-xs font-medium uppercase tracking-wider text-blue-600">Consultation Appointment Details</dt>
                 <dd class="mt-2 grid gap-2 sm:grid-cols-2">

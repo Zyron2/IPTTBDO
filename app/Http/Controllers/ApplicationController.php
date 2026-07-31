@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewConsultationRequest;
+use App\Notifications\NewPriorArtSearchRequest;
+use App\Notifications\NewClaimsDraftingRequest;
 
 class ApplicationController extends Controller
 {
@@ -46,6 +48,200 @@ class ApplicationController extends Controller
     public function ipServices()
     {
         return view('applications.ip-services');
+    }
+
+    public function ipPriorArtSearch()
+    {
+        return view('applications.ip-prior-art-search');
+    }
+
+    public function storeIpPriorArtSearch(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'search_terms' => ['required', 'string', 'max:1000'],
+            'overview_1' => ['required', 'string'],
+            'overview_2' => ['required', 'string'],
+            'overview_3' => ['required', 'string'],
+            'overview_4' => ['required', 'string'],
+            'technical_description' => ['required', 'string'],
+            'prior_findings_1' => ['required', 'string'],
+            'prior_findings_2' => ['required', 'string'],
+            'development_stage' => ['required', 'string'],
+            'potential_licensees' => ['required', 'string'],
+            'publication_title' => ['nullable', 'string', 'max:500'],
+            'publication_type' => ['nullable', 'string', 'max:255'],
+            'publication_date' => ['nullable', 'string', 'max:100'],
+            'conception_date' => ['nullable', 'string', 'max:255'],
+            'reduction_date' => ['nullable', 'string', 'max:255'],
+            'sponsorship' => ['nullable', 'string'],
+            'agreements' => ['nullable', 'string'],
+            'material_used' => ['nullable', 'string'],
+            'material_used_details' => ['nullable', 'string'],
+            'material_transferred' => ['nullable', 'string'],
+            'material_transferred_details' => ['nullable', 'string'],
+            'other_group_using' => ['nullable', 'string'],
+            'other_group_details' => ['nullable', 'string'],
+            'inventors' => ['nullable', 'array'],
+            'inventors.*.name' => ['nullable', 'string', 'max:255'],
+            'inventors.*.role' => ['nullable', 'string', 'max:255'],
+            'corresponding_inventor' => ['nullable', 'string', 'max:255'],
+            'corresponding_inventor_date' => ['nullable', 'string', 'max:100'],
+            'dept_head_name' => ['nullable', 'string', 'max:255'],
+            'dept_head_date' => ['nullable', 'string', 'max:100'],
+            'inventor_name' => ['nullable', 'string', 'max:255'],
+            'inventor_date' => ['nullable', 'string', 'max:100'],
+            'disclosure_agreed' => ['required', 'string'],
+            'policy_agreed' => ['required', 'string'],
+        ]);
+
+        $titleText = $data['title'];
+        $application = Application::create([
+            'branch' => 'ip',
+            'application_type' => 'prior_art',
+            'title' => $titleText,
+            'submitted_by' => $request->user()->id,
+            'tracking_no' => Application::generateTrackingNo('ip'),
+            'status' => Application::STATUS_FOR_EVALUATION,
+            'date_filed' => now()->toDateString(),
+            'payload' => [
+                'search_terms' => $data['search_terms'],
+                'overview_1' => $data['overview_1'],
+                'overview_2' => $data['overview_2'],
+                'overview_3' => $data['overview_3'],
+                'overview_4' => $data['overview_4'],
+                'technical_description' => $data['technical_description'],
+                'prior_findings_1' => $data['prior_findings_1'],
+                'prior_findings_2' => $data['prior_findings_2'],
+                'development_stage' => $data['development_stage'],
+                'potential_licensees' => $data['potential_licensees'],
+                'publication_title' => $data['publication_title'] ?? null,
+                'publication_type' => $data['publication_type'] ?? null,
+                'publication_date' => $data['publication_date'] ?? null,
+                'conception_date' => $data['conception_date'] ?? null,
+                'reduction_date' => $data['reduction_date'] ?? null,
+                'sponsorship' => $data['sponsorship'] ?? null,
+                'agreements' => $data['agreements'] ?? null,
+                'material_used' => $data['material_used'] ?? null,
+                'material_used_details' => $data['material_used_details'] ?? null,
+                'material_transferred' => $data['material_transferred'] ?? null,
+                'material_transferred_details' => $data['material_transferred_details'] ?? null,
+                'other_group_using' => $data['other_group_using'] ?? null,
+                'other_group_details' => $data['other_group_details'] ?? null,
+                'inventors' => $data['inventors'] ?? null,
+                'corresponding_inventor' => $data['corresponding_inventor'] ?? null,
+                'corresponding_inventor_date' => $data['corresponding_inventor_date'] ?? null,
+                'dept_head_name' => $data['dept_head_name'] ?? null,
+                'dept_head_date' => $data['dept_head_date'] ?? null,
+                'inventor_name' => $data['inventor_name'] ?? null,
+                'inventor_date' => $data['inventor_date'] ?? null,
+                'disclosure_agreed' => $data['disclosure_agreed'],
+                'policy_agreed' => $data['policy_agreed'],
+            ],
+        ]);
+
+        $admins = User::where('role', 'admin')->get();
+        Notification::send($admins, new NewPriorArtSearchRequest($application));
+
+        return redirect()->route('applications.show', $application)
+            ->with('success', 'Prior art search request submitted successfully.');
+    }
+
+    public function ipClaimsDrafting()
+    {
+        return view('applications.ip-claims-drafting');
+    }
+
+    public function storeIpClaimsDrafting(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'search_terms' => ['required', 'string', 'max:1000'],
+            'overview_1' => ['required', 'string'],
+            'overview_2' => ['required', 'string'],
+            'overview_3' => ['required', 'string'],
+            'overview_4' => ['required', 'string'],
+            'technical_description' => ['required', 'string'],
+            'prior_findings_1' => ['required', 'string'],
+            'prior_findings_2' => ['required', 'string'],
+            'development_stage' => ['required', 'string'],
+            'potential_licensees' => ['required', 'string'],
+            'publication_title' => ['nullable', 'string', 'max:500'],
+            'publication_type' => ['nullable', 'string', 'max:255'],
+            'publication_date' => ['nullable', 'string', 'max:100'],
+            'conception_date' => ['nullable', 'string', 'max:255'],
+            'reduction_date' => ['nullable', 'string', 'max:255'],
+            'sponsorship' => ['nullable', 'string'],
+            'agreements' => ['nullable', 'string'],
+            'material_used' => ['nullable', 'string'],
+            'material_used_details' => ['nullable', 'string'],
+            'material_transferred' => ['nullable', 'string'],
+            'material_transferred_details' => ['nullable', 'string'],
+            'other_group_using' => ['nullable', 'string'],
+            'other_group_details' => ['nullable', 'string'],
+            'inventors' => ['nullable', 'array'],
+            'inventors.*.name' => ['nullable', 'string', 'max:255'],
+            'inventors.*.role' => ['nullable', 'string', 'max:255'],
+            'corresponding_inventor' => ['nullable', 'string', 'max:255'],
+            'corresponding_inventor_date' => ['nullable', 'string', 'max:100'],
+            'dept_head_name' => ['nullable', 'string', 'max:255'],
+            'dept_head_date' => ['nullable', 'string', 'max:100'],
+            'inventor_name' => ['nullable', 'string', 'max:255'],
+            'inventor_date' => ['nullable', 'string', 'max:100'],
+            'disclosure_agreed' => ['required', 'string'],
+            'policy_agreed' => ['required', 'string'],
+        ]);
+
+        $titleText = $data['title'];
+        $application = Application::create([
+            'branch' => 'ip',
+            'application_type' => 'claims_drafting',
+            'title' => $titleText,
+            'submitted_by' => $request->user()->id,
+            'tracking_no' => Application::generateTrackingNo('ip'),
+            'status' => Application::STATUS_FOR_EVALUATION,
+            'date_filed' => now()->toDateString(),
+            'payload' => [
+                'search_terms' => $data['search_terms'],
+                'overview_1' => $data['overview_1'],
+                'overview_2' => $data['overview_2'],
+                'overview_3' => $data['overview_3'],
+                'overview_4' => $data['overview_4'],
+                'technical_description' => $data['technical_description'],
+                'prior_findings_1' => $data['prior_findings_1'],
+                'prior_findings_2' => $data['prior_findings_2'],
+                'development_stage' => $data['development_stage'],
+                'potential_licensees' => $data['potential_licensees'],
+                'publication_title' => $data['publication_title'] ?? null,
+                'publication_type' => $data['publication_type'] ?? null,
+                'publication_date' => $data['publication_date'] ?? null,
+                'conception_date' => $data['conception_date'] ?? null,
+                'reduction_date' => $data['reduction_date'] ?? null,
+                'sponsorship' => $data['sponsorship'] ?? null,
+                'agreements' => $data['agreements'] ?? null,
+                'material_used' => $data['material_used'] ?? null,
+                'material_used_details' => $data['material_used_details'] ?? null,
+                'material_transferred' => $data['material_transferred'] ?? null,
+                'material_transferred_details' => $data['material_transferred_details'] ?? null,
+                'other_group_using' => $data['other_group_using'] ?? null,
+                'other_group_details' => $data['other_group_details'] ?? null,
+                'inventors' => $data['inventors'] ?? null,
+                'corresponding_inventor' => $data['corresponding_inventor'] ?? null,
+                'corresponding_inventor_date' => $data['corresponding_inventor_date'] ?? null,
+                'dept_head_name' => $data['dept_head_name'] ?? null,
+                'dept_head_date' => $data['dept_head_date'] ?? null,
+                'inventor_name' => $data['inventor_name'] ?? null,
+                'inventor_date' => $data['inventor_date'] ?? null,
+                'disclosure_agreed' => $data['disclosure_agreed'],
+                'policy_agreed' => $data['policy_agreed'],
+            ],
+        ]);
+
+        $admins = User::where('role', 'admin')->get();
+        Notification::send($admins, new NewClaimsDraftingRequest($application));
+
+        return redirect()->route('applications.show', $application)
+            ->with('success', 'IP claims drafting request submitted successfully.');
     }
 
     public function ipConsultation()

@@ -77,6 +77,9 @@ class Application extends Model
     public static function formTypes(): array
     {
         return [
+            'prior_art' => 'Prior Art Search',
+            'claims_drafting' => 'IP Claims Drafting',
+            'consultation' => 'Consultation',
             'patent_form' => 'Patent Form',
             'um_form' => 'UM Form',
             'id_form' => 'ID Form',
