@@ -79,6 +79,8 @@ class Application extends Model
         return [
             'prior_art' => 'Prior Art Search',
             'claims_drafting' => 'IP Claims Drafting',
+            'apply_protection' => 'Apply for IP Protection',
+            'incentives' => 'Intent to Receive Incentives',
             'consultation' => 'Consultation',
             'patent_form' => 'Patent Form',
             'um_form' => 'UM Form',

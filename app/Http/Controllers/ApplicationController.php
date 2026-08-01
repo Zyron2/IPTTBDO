@@ -7,9 +7,12 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use App\Notifications\NewConsultationRequest;
 use App\Notifications\NewPriorArtSearchRequest;
 use App\Notifications\NewClaimsDraftingRequest;
+use App\Notifications\NewApplyProtectionRequest;
+use App\Notifications\NewIncentivesRequest;
 
 class ApplicationController extends Controller
 {
@@ -93,6 +96,8 @@ class ApplicationController extends Controller
             'inventor_date' => ['nullable', 'string', 'max:100'],
             'disclosure_agreed' => ['required', 'string'],
             'policy_agreed' => ['required', 'string'],
+            'documents' => ['nullable', 'array', 'max:5'],
+            'documents.*' => ['file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:2048'],
         ]);
 
         $titleText = $data['title'];
@@ -143,6 +148,15 @@ class ApplicationController extends Controller
         $admins = User::where('role', 'admin')->get();
         Notification::send($admins, new NewPriorArtSearchRequest($application));
 
+        if ($request->hasFile('documents')) {
+            $paths = [];
+            foreach ($request->file('documents') as $doc) {
+                $paths[] = $doc->store('ip_forms/' . $application->tracking_no . '/documents', 'public');
+            }
+            $application->payload = array_merge($application->payload, ['documents' => $paths]);
+            $application->save();
+        }
+
         return redirect()->route('applications.show', $application)
             ->with('success', 'Prior art search request submitted successfully.');
     }
@@ -190,6 +204,8 @@ class ApplicationController extends Controller
             'inventor_date' => ['nullable', 'string', 'max:100'],
             'disclosure_agreed' => ['required', 'string'],
             'policy_agreed' => ['required', 'string'],
+            'documents' => ['nullable', 'array', 'max:5'],
+            'documents.*' => ['file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:2048'],
         ]);
 
         $titleText = $data['title'];
@@ -240,8 +256,172 @@ class ApplicationController extends Controller
         $admins = User::where('role', 'admin')->get();
         Notification::send($admins, new NewClaimsDraftingRequest($application));
 
+        if ($request->hasFile('documents')) {
+            $paths = [];
+            foreach ($request->file('documents') as $doc) {
+                $paths[] = $doc->store('ip_forms/' . $application->tracking_no . '/documents', 'public');
+            }
+            $application->payload = array_merge($application->payload, ['documents' => $paths]);
+            $application->save();
+        }
+
         return redirect()->route('applications.show', $application)
             ->with('success', 'IP claims drafting request submitted successfully.');
+    }
+
+    public function ipApplyProtection()
+    {
+        return view('applications.ip-apply-protection');
+    }
+
+    public function storeIpApplyProtection(Request $request)
+    {
+        $ipTypes = ['patent', 'um', 'id', 'trademark', 'copyright'];
+
+        $common = [
+            'ip_type' => ['required', 'string', 'in:' . implode(',', $ipTypes)],
+            'ip_ownership' => ['required', 'string', 'in:university,external'],
+            'research_funded' => ['required', 'string', 'in:yes,no'],
+            'funding_source' => ['required_if:research_funded,yes', 'nullable', 'string', 'in:external,locally_funded'],
+        ];
+
+        $typeFields = [
+            'patent' => [
+                'patent_invention_title' => ['required', 'string', 'max:255'],
+                'patent_inventors' => ['required', 'string'],
+                'patent_abstract' => ['required', 'string'],
+                'patent_claims' => ['required', 'string'],
+                'patent_description' => ['required', 'string'],
+                'patent_priority_date' => ['nullable', 'date'],
+            ],
+            'um' => [
+                'um_title' => ['required', 'string', 'max:255'],
+                'um_inventors' => ['required', 'string'],
+                'um_abstract' => ['required', 'string'],
+                'um_claims' => ['required', 'string'],
+                'um_description' => ['required', 'string'],
+                'um_priority_date' => ['nullable', 'date'],
+            ],
+            'id' => [
+                'id_title' => ['required', 'string', 'max:255'],
+                'id_designer' => ['required', 'string', 'max:255'],
+                'id_description' => ['required', 'string'],
+            ],
+            'trademark' => [
+                'tm_mark_name' => ['required', 'string', 'max:255'],
+                'tm_owner_name' => ['required', 'string', 'max:255'],
+                'tm_classes' => ['required', 'string', 'max:255'],
+                'tm_description' => ['required', 'string'],
+            ],
+            'copyright' => [
+                'cr_title' => ['required', 'string', 'max:255'],
+                'cr_author' => ['required', 'string', 'max:255'],
+                'cr_date_created' => ['nullable', 'date'],
+                'cr_type' => ['required', 'string', 'max:255'],
+                'cr_description' => ['required', 'string'],
+            ],
+        ];
+
+        $data = $request->validate(array_merge($common, $typeFields[$request->input('ip_type', 'patent')]));
+
+        $data['documents'] = $request->validate([
+            'documents' => ['required', 'array', 'min:1', 'max:10'],
+            'documents.*' => ['file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:2048'],
+        ])['documents'];
+
+        $ipType = $data['ip_type'];
+
+        $titleFields = [
+            'patent' => 'patent_invention_title',
+            'um' => 'um_title',
+            'id' => 'id_title',
+            'trademark' => 'tm_mark_name',
+            'copyright' => 'cr_title',
+        ];
+
+        $application = Application::create([
+            'branch' => 'ip',
+            'application_type' => 'apply_protection',
+            'title' => $data[$titleFields[$ipType]],
+            'submitted_by' => $request->user()->id,
+            'tracking_no' => Application::generateTrackingNo('ip'),
+            'status' => Application::STATUS_FOR_EVALUATION,
+            'date_filed' => now()->toDateString(),
+            'payload' => array_merge(
+                ['ip_type' => $ipType, 'ip_ownership' => $data['ip_ownership'], 'research_funded' => $data['research_funded']],
+                $data['research_funded'] === 'yes' ? ['funding_source' => $data['funding_source']] : [],
+                collect($typeFields[$ipType])->keys()->mapWithKeys(fn ($k) => [$k => $data[$k] ?? null])->toArray(),
+            ),
+        ]);
+
+        if (! empty($data['documents'])) {
+            $docPaths = [];
+            foreach ($data['documents'] as $doc) {
+                $docPaths[] = $doc->store('ip_forms/' . $application->tracking_no . '/documents', 'public');
+            }
+            $application->payload = array_merge($application->payload, ['documents' => $docPaths]);
+            $application->save();
+        }
+
+        $admins = User::where('role', 'admin')->get();
+        Notification::send($admins, new NewApplyProtectionRequest($application));
+
+        return redirect()->route('applications.show', $application)
+            ->with('success', 'IP protection application submitted successfully.');
+    }
+
+    public function ipIncentives()
+    {
+        return view('applications.ip-incentives');
+    }
+
+    public function storeIpIncentives(Request $request)
+    {
+        $data = $request->validate([
+            'incentive_type' => ['required', 'string', 'in:patent_incentive,utility_model_incentive,industrial_design_incentive,trademark_incentive,copyright_incentive,ip_commercialization_incentive'],
+            'ip_title' => ['required', 'string', 'max:255'],
+            'proponent_name' => ['required', 'string', 'max:255'],
+            'affiliation' => ['nullable', 'string', 'max:255'],
+            'ip_status' => ['required', 'string', 'in:registered,applied,not_yet_applied,commercialized'],
+            'description' => ['required', 'string'],
+        ]);
+
+        $documents = $request->validate([
+            'documents' => ['required', 'array', 'min:1', 'max:10'],
+            'documents.*' => ['file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:2048'],
+        ])['documents'];
+
+        $application = Application::create([
+            'branch' => 'ip',
+            'application_type' => 'incentives',
+            'title' => $data['ip_title'],
+            'proponent_name' => $data['proponent_name'],
+            'description' => $data['description'],
+            'submitted_by' => $request->user()->id,
+            'tracking_no' => Application::generateTrackingNo('ip'),
+            'status' => Application::STATUS_FOR_EVALUATION,
+            'date_filed' => now()->toDateString(),
+            'payload' => [
+                'incentive_type' => $data['incentive_type'],
+                'affiliation' => $data['affiliation'] ?? null,
+                'ip_status' => $data['ip_status'],
+            ],
+        ]);
+
+        if (! empty($documents)) {
+            $docPaths = [];
+            foreach ($documents as $doc) {
+                $docPaths[] = $doc->store('ip_forms/' . $application->tracking_no . '/documents', 'public');
+            }
+            $application->payload = array_merge($application->payload, ['documents' => $docPaths]);
+            $application->save();
+        }
+
+        $admins = User::where('role', 'admin')->get();
+        Notification::send($admins, new NewIncentivesRequest($application));
+
+        return redirect()->route('applications.show', $application)
+            ->with('success', 'Intent to receive incentives submitted successfully. An admin will review your application.');
     }
 
     public function ipConsultation()
@@ -323,7 +503,7 @@ class ApplicationController extends Controller
 
     public function edit(Request $request, Application $application)
     {
-        $this->authorizeAdmin($request);
+        $this->authorizeEdit($request, $application);
 
         return view('applications.edit', [
             'application' => $application,
@@ -335,8 +515,17 @@ class ApplicationController extends Controller
 
     public function update(Request $request, Application $application)
     {
-        $this->authorizeAdmin($request);
+        $this->authorizeEdit($request, $application);
         $data = $this->validatedData($request);
+
+        if (! $request->user()->isAdmin()) {
+            $data = array_intersect_key($data, array_flip(['title', 'description', 'proponent_name', 'inventor_name', 'startup_name', 'payload', 'remarks']));
+            $data['status'] = Application::STATUS_FOR_EVALUATION;
+        } else {
+            if (($data['status'] ?? $application->status) === Application::STATUS_REGISTERED) {
+                $data['status'] = Application::STATUS_COMPLETED;
+            }
+        }
 
         $application->update($data);
 
@@ -388,6 +577,14 @@ class ApplicationController extends Controller
     private function authorizeAdmin(Request $request): void
     {
         abort_unless($request->user()->isAdmin(), 403);
+    }
+
+    private function authorizeEdit(Request $request, Application $application): void
+    {
+        $isOwner = $application->submitted_by === $request->user()->id;
+        $mayRevise = $isOwner && $application->status === Application::STATUS_FOR_REVISION;
+
+        abort_unless($request->user()->isAdmin() || $mayRevise, 403);
     }
 
     private function authorizeAccess(Request $request, Application $application): void

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DropboxController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -23,8 +24,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/ip-services/prior-art-search', [ApplicationController::class, 'storeIpPriorArtSearch'])->name('applications.ip-prior-art-search.store');
     Route::get('/ip-services/claims-drafting', [ApplicationController::class, 'ipClaimsDrafting'])->name('applications.ip-claims-drafting');
     Route::post('/ip-services/claims-drafting', [ApplicationController::class, 'storeIpClaimsDrafting'])->name('applications.ip-claims-drafting.store');
+    Route::get('/ip-services/apply-ip-protection', [ApplicationController::class, 'ipApplyProtection'])->name('applications.ip-apply-protection');
+    Route::post('/ip-services/apply-ip-protection', [ApplicationController::class, 'storeIpApplyProtection'])->name('applications.ip-apply-protection.store');
+    Route::get('/ip-services/incentives', [ApplicationController::class, 'ipIncentives'])->name('applications.ip-incentives');
+    Route::post('/ip-services/incentives', [ApplicationController::class, 'storeIpIncentives'])->name('applications.ip-incentives.store');
     Route::get('/ip-services/consultation', [ApplicationController::class, 'ipConsultation'])->name('applications.ip-consultation');
     Route::post('/ip-services/consultation', [ApplicationController::class, 'storeIpConsultation'])->name('applications.ip-consultation.store');
+    Route::get('/documents', [DropboxController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [DropboxController::class, 'store'])->name('documents.store');
+    Route::delete('/documents/{file}', [DropboxController::class, 'destroy'])->name('documents.destroy');
     Route::get('/applications/{application}/download', [ApplicationController::class, 'download'])->name('applications.download');
     Route::resource('applications', ApplicationController::class)->except(['destroy']);
 });

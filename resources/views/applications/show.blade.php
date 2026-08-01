@@ -19,7 +19,7 @@
                     </svg>
                     Download
                 </a>
-                @if(auth()->user()->isAdmin())
+                @if(auth()->user()->isAdmin() || ($application->submitted_by === auth()->user()->id && $application->status === \App\Models\Application::STATUS_FOR_REVISION))
                 <a href="{{ route('applications.edit', $application) }}" class="inline-flex items-center rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-amber-600 hover:to-amber-500 hover:shadow-lg hover:shadow-amber-200/50 active:scale-95">
                     <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -121,6 +121,21 @@
                         <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['corresponding_inventor'] }} @if(!empty($application->payload['corresponding_inventor_date'])) — {{ $application->payload['corresponding_inventor_date'] }} @endif</p>
                     </div>
                     @endif
+                    @if(!empty($application->payload['documents']) && is_array($application->payload['documents']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Supporting Documents:</span>
+                        <ul class="mt-1 space-y-1">
+                            @foreach($application->payload['documents'] as $doc)
+                            <li>
+                                <a href="{{ \Illuminate\Support\Facades\Storage::url($doc) }}" target="_blank" class="inline-flex items-center text-sm text-blue-600 underline underline-offset-2 hover:text-blue-800">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    {{ basename($doc) }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                 </dd>
             </div>
             @elseif($application->branch === 'consultation' && !empty($application->payload['consultation_date']))
@@ -147,11 +162,137 @@
                     @endif
                 </dd>
             </div>
+            @elseif($application->application_type === 'apply_protection')
+            <div class="rounded-lg border border-emerald-100 bg-emerald-50/50 p-4 sm:col-span-2 transition hover:bg-emerald-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-emerald-600">IP Protection Application Details</dt>
+                <dd class="mt-2 grid gap-3 sm:grid-cols-2">
+                    @if(!empty($application->payload['ip_type']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">IP Type:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['ip_type'])) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['ip_ownership']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">IP Ownership:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords($application->payload['ip_ownership']) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['research_funded']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Research Funded:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ strtoupper($application->payload['research_funded']) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['funding_source']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Funding Source:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['funding_source'])) }}</p>
+                    </div>
+                    @endif
+                    @foreach(['patent_invention_title' => 'Title of Invention', 'patent_inventors' => 'Inventors', 'patent_abstract' => 'Abstract', 'patent_claims' => 'Claims', 'patent_description' => 'Detailed Description', 'patent_priority_date' => 'Priority Date', 'um_title' => 'Title of Utility Model', 'um_inventors' => 'Inventors', 'um_abstract' => 'Abstract', 'um_claims' => 'Claims', 'um_description' => 'Detailed Description', 'um_priority_date' => 'Priority Date', 'id_title' => 'Title of Design', 'id_designer' => 'Designer', 'id_description' => 'Description of Design', 'tm_mark_name' => 'Mark Name', 'tm_owner_name' => 'Owner Name', 'tm_classes' => 'Classes', 'tm_description' => 'Description of Mark', 'cr_title' => 'Title of Work', 'cr_author' => 'Author', 'cr_date_created' => 'Date Created', 'cr_type' => 'Type of Work', 'cr_description' => 'Description of Work'] as $key => $label)
+                    @if(!empty($application->payload[$key]))
+                    <div class="{{ in_array($key, ['patent_abstract', 'patent_claims', 'patent_description', 'um_abstract', 'um_claims', 'um_description', 'id_description', 'tm_description', 'cr_description']) ? 'sm:col-span-2' : '' }}">
+                        <span class="text-xs font-medium text-gray-500">{{ $label }}:</span>
+                        <p class="mt-0.5 whitespace-pre-line text-sm text-gray-900">{{ $application->payload[$key] }}</p>
+                    </div>
+                    @endif
+                    @endforeach
+                    @if(!empty($application->payload['attachment']) || (!empty($application->payload['documents']) && is_array($application->payload['documents'])))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Documents:</span>
+                        <ul class="mt-1 space-y-1">
+                            @if(!empty($application->payload['attachment']))
+                            <li>
+                                <a href="{{ \Illuminate\Support\Facades\Storage::url($application->payload['attachment']) }}" target="_blank" class="inline-flex items-center text-sm text-emerald-700 underline underline-offset-2 hover:text-emerald-900">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    {{ basename($application->payload['attachment']) }}
+                                </a>
+                            </li>
+                            @endif
+                            @foreach($application->payload['documents'] ?? [] as $doc)
+                            <li>
+                                <a href="{{ \Illuminate\Support\Facades\Storage::url($doc) }}" target="_blank" class="inline-flex items-center text-sm text-emerald-700 underline underline-offset-2 hover:text-emerald-900">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    {{ basename($doc) }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                </dd>
+            </div>
+            @elseif($application->application_type === 'incentives')
+            <div class="rounded-lg border border-amber-100 bg-amber-50/50 p-4 sm:col-span-2 transition hover:bg-amber-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-amber-600">Incentive Application Details</dt>
+                <dd class="mt-2 grid gap-3 sm:grid-cols-2">
+                    @if(!empty($application->payload['incentive_type']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Incentive Type:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['incentive_type'])) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->proponent_name))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Proponent Name:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ $application->proponent_name }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['affiliation']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Affiliation / Department:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ $application->payload['affiliation'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['ip_status']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Current IP Status:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['ip_status'])) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->description))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Description:</span>
+                        <p class="mt-0.5 whitespace-pre-line text-sm text-gray-900">{{ $application->description }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['documents']) && is_array($application->payload['documents']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Supporting Documents:</span>
+                        <ul class="mt-1 space-y-1">
+                            @foreach($application->payload['documents'] as $doc)
+                            <li>
+                                <a href="{{ \Illuminate\Support\Facades\Storage::url($doc) }}" target="_blank" class="inline-flex items-center text-sm text-amber-700 underline underline-offset-2 hover:text-amber-900">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    {{ basename($doc) }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                </dd>
+            </div>
             @endif
-            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
-                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Status</dt>
                 <dd class="mt-1.5">
                     <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200/50">{{ $application->statusLabel() }}</span>
+                    @if($application->status === \App\Models\Application::STATUS_FOR_REVISION)
+                    <div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                        <p class="text-sm font-medium text-amber-800">This application needs revision. Please update the details and resubmit.</p>
+                        @if(auth()->user()->isAdmin() || $application->submitted_by === auth()->user()->id)
+                        <a href="{{ route('applications.edit', $application) }}" class="mt-2 inline-flex items-center text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-900">Update &amp; resubmit</a>
+                        @endif
+                    </div>
+                    @elseif($application->status === \App\Models\Application::STATUS_COMPLETED)
+                    <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                        <p class="text-sm font-medium text-emerald-800">This application has been registered and is now completed.</p>
+                    </div>
+                    @else
+                    <div class="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        <p class="text-sm text-gray-600">Wait until registered or revision needed.</p>
+                    </div>
+                    @endif
                 </dd>
             </div>
             <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">

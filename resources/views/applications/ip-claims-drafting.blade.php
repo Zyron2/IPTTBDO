@@ -171,7 +171,7 @@
                     </div>
                     <div>
                         <p class="text-xs italic text-gray-500 mb-1">2. Kindly attach a copy of said publications or presentations. Disclosure is the oral, written, or electronic dissemination of the invention to a person outside the University of the Philippines that would enable someone of ordinary skill working in the field to practice the invention or repeat its development.</p>
-                        <p class="text-xs text-gray-400">(File attachment not yet available in this form — please submit physical copies to the IPTTBDO office.)</p>
+                        <p class="text-xs text-gray-400">Use the "Supporting Documents" dropbox below to attach copies of said publications or presentations.</p>
                     </div>
                     <div>
                         <p class="text-xs italic text-gray-500 mb-1">3. Type of disclosure (i.e. publications, posters, etc)</p>
@@ -186,6 +186,20 @@
                     </div>
                 </div>
                 @error('publication_title')
+                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Supporting Documents --}}
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-600">Supporting Documents</label>
+                <p class="mb-2 text-xs italic text-gray-500">Attach publications, papers, pilot project files, visual material, or other supporting documents. Accepted: PDF, DOC, DOCX, JPG, JPEG, PNG. Max 2MB each.</p>
+                @include('applications._file-dropzone', [
+                    'name' => 'documents[]',
+                    'id' => 'claims_drafting_documents',
+                    'multiple' => true,
+                ])
+                @error('documents')
                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>

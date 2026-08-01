@@ -11,6 +11,14 @@
     <form method="POST" action="{{ route('applications.update', $application) }}" class="mt-6 grid gap-5 lg:grid-cols-2">
         @csrf
         @method('PUT')
+
+        @if(!auth()->user()->isAdmin())
+        <input type="hidden" name="branch" value="{{ $application->branch }}">
+        <input type="hidden" name="title" value="{{ $application->title }}">
+        <div class="lg:col-span-2 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p class="text-sm font-medium text-amber-800">You are revising this application for resubmission. The status will return to "For Evaluation" once submitted.</p>
+        </div>
+        @else
         <label class="block">
             <span class="mb-1.5 block text-sm font-medium text-gray-600">Branch</span>
             <select name="branch" class="w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100 focus:bg-amber-50/30">
@@ -28,10 +36,12 @@
                 @endforeach
             </select>
         </label>
+        @endif
 
         <script>
             function toggleSections(value) {
                 const standardFields = document.getElementById('standard-fields-section');
+                if (!standardFields) return;
                 standardFields.style.display = 'none';
 
                 if (value !== 'ip' && value !== 'consultation') {
@@ -39,14 +49,16 @@
                 }
             }
 
-            document.querySelector('select[name="branch"]').addEventListener('change', function() {
-                toggleSections(this.value);
-            });
+            const branchSelect = document.querySelector('select[name="branch"]');
+            if (branchSelect) {
+                branchSelect.addEventListener('change', function() {
+                    toggleSections(this.value);
+                });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const branchSelect = document.querySelector('select[name="branch"]');
-                toggleSections(branchSelect.value);
-            });
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleSections(branchSelect.value);
+                });
+            }
         </script>
 
         <div id="standard-fields-section" class="contents lg:col-span-2">
@@ -84,6 +96,20 @@
                 <span class="mb-1.5 block text-sm font-medium text-gray-600">Remarks</span>
                 <textarea name="remarks" rows="3" class="w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none placeholder-gray-400 transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100 focus:bg-amber-50/30">{{ $application->remarks }}</textarea>
             </label>
+        </div>
+
+        <div class="lg:col-span-2 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Branch-specific details (form data)</p>
+            @forelse(($application->payload ?? []) as $key => $value)
+            @if(is_string($value) && !str_contains($key, 'attachment'))
+            <label class="mt-3 block">
+                <span class="mb-1.5 block text-sm font-medium text-gray-600">{{ ucwords(str_replace('_', ' ', $key)) }}</span>
+                <textarea name="payload[{{ $key }}]" rows="2" class="w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none placeholder-gray-400 transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100 focus:bg-amber-50/30">{{ $value }}</textarea>
+            </label>
+            @endif
+            @empty
+            <p class="text-sm text-gray-400">No extra payload stored yet.</p>
+            @endforelse
         </div>
 
         <div class="lg:col-span-2 flex items-center gap-4 pt-2">
