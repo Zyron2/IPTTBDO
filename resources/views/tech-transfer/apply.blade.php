@@ -148,20 +148,9 @@
                         <span class="text-[11px] font-semibold text-blue-700 uppercase tracking-widest">Track A — TRL Assessment</span>
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-600">TRL Assessment Level <span class="text-red-500">*</span></label>
-                        <select name="trl_level" class="w-full rounded-lg border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
-                            <option value="" disabled selected>Select TRL 1–9</option>
-                            @foreach([1 => 'TRL 1 — Basic principles observed', 2 => 'TRL 2 — Technology concept formulated', 3 => 'TRL 3 — Experimental proof of concept', 4 => 'TRL 4 — Technology validated in lab', 5 => 'TRL 5 — Technology validated in relevant environment', 6 => 'TRL 6 — Technology demonstrated in relevant environment', 7 => 'TRL 7 — System prototype demonstration in operational environment', 8 => 'TRL 8 — System complete and qualified', 9 => 'TRL 9 — Actual system proven in operational environment'] as $lv => $label)
-                            <option value="{{ $lv }}" @selected(old('trl_level') == $lv)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('trl_level')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-600">Narrative / Report of Tech</label>
-                        <textarea name="trl_narrative" rows="4" class="w-full rounded-lg border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder-gray-400" placeholder="Attach or describe your narrative / report of the technology">{{ old('trl_narrative') }}</textarea>
+                        <textarea name="trl_narrative" rows="4" class="w-full rounded-lg border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder-gray-400" placeholder="Describe your technology so the admin can assess its readiness level">{{ old('trl_narrative') }}</textarea>
+                        <p class="mt-1.5 text-xs italic text-gray-500">The admin will assess and set your TRL level (1–9) after review. The result will be reflected on your application.</p>
                     </div>
                 </div>
 

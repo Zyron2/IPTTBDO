@@ -38,6 +38,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/tech-transfer/apply', [TechTransferController::class, 'apply'])->name('tech-transfer.apply');
     Route::post('/tech-transfer', [TechTransferController::class, 'store'])->name('tech-transfer.store');
     Route::get('/tech-transfer/data', [TechTransferController::class, 'data'])->name('tech-transfer.data');
+    Route::post('/tech-transfer/{application}/rate-trl', [TechTransferController::class, 'rateTrl'])->name('tech-transfer.rate-trl');
+    Route::post('/tech-transfer/{application}/approve-schedule', [TechTransferController::class, 'approveSchedule'])->name('tech-transfer.approve-schedule');
+    Route::post('/tech-transfer/{application}/proceed-tbi', [TechTransferController::class, 'proceedToTbi'])->name('tech-transfer.proceed-tbi');
+    Route::post('/tech-transfer/{application}/meeting-decision', [TechTransferController::class, 'meetingDecision'])->name('tech-transfer.meeting-decision');
+    Route::post('/tech-transfer/{application}/requirements', [TechTransferController::class, 'submitRequirements'])->name('tech-transfer.requirements');
     Route::get('/applications/{application}/download', [ApplicationController::class, 'download'])->name('applications.download');
     Route::resource('applications', ApplicationController::class)->except(['destroy']);
 });

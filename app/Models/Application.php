@@ -23,6 +23,8 @@ class Application extends Model
     public const STATUS_REGISTERED = 'registered';
     public const STATUS_FOR_REVISION = 'for_revision';
     public const STATUS_COMPLETED = 'completed';
+    public const STATUS_MEETING_APPROVED = 'meeting_approved';
+    public const STATUS_REQUIREMENTS = 'requirements';
 
     protected $fillable = [
         'submitted_by',
@@ -71,6 +73,8 @@ class Application extends Model
             self::STATUS_REGISTERED => 'Registered',
             self::STATUS_FOR_REVISION => 'For Revision',
             self::STATUS_COMPLETED => 'Completed',
+            self::STATUS_MEETING_APPROVED => 'Meeting Approved',
+            self::STATUS_REQUIREMENTS => 'Requirements',
         ];
     }
 

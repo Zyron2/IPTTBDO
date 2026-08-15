@@ -26,6 +26,7 @@
             <thead class="bg-gray-50 text-gray-500">
                 <tr>
                     <th class="px-4 py-3 font-medium">IP No.</th>
+                    <th class="px-4 py-3 font-medium">TRL</th>
                     <th class="px-4 py-3 font-medium">Mode of Deployment / Commercialization</th>
                     <th class="px-4 py-3 font-medium">Adopters / Association</th>
                     <th class="px-4 py-3 font-medium">Sectors of Adopters</th>
@@ -40,6 +41,7 @@
                 @forelse ($applications as $application)
                 <tr class="transition-all hover:bg-emerald-50/50 hover:shadow-sm">
                     <td class="px-4 py-3 font-mono text-xs">{{ $application->tracking_no }}</td>
+                    <td class="px-4 py-3">{{ !empty($application->payload['trl_level']) ? 'TRL ' . $application->payload['trl_level'] : '—' }}</td>
                     <td class="px-4 py-3">{{ $application->payload['mode_of_transfer'] ?? $application->payload['services'] ?? '—' }}</td>
                     <td class="px-4 py-3">{{ $application->payload['adopters'] ?? '—' }}</td>
                     <td class="px-4 py-3">{{ $application->payload['adopter_sectors'] ?? '—' }}</td>
@@ -60,7 +62,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="px-4 py-10 text-center text-gray-400">
+                    <td colspan="10" class="px-4 py-10 text-center text-gray-400">
                         <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h3m-3 4h10a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"></path>
                         </svg>

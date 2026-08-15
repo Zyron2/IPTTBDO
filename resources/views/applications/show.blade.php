@@ -348,8 +348,63 @@
                 </dd>
             </div>
             @endif
-            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
-                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Status</dt>
+            @if($application->application_type === 'tech_transfer' && auth()->user()->isAdmin())
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4 sm:col-span-2 transition hover:bg-emerald-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-emerald-700">Admin Tech Transfer Actions</dt>
+                <dd class="mt-3 space-y-4">
+                    @if(!in_array($application->status, [\App\Models\Application::STATUS_REGISTERED, \App\Models\Application::STATUS_COMPLETED]))
+                    {{-- TRL rating --}}
+                    <form method="POST" action="{{ route('tech-transfer.rate-trl', $application) }}" class="rounded-lg border border-emerald-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">TRL Assessment</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Only admins can rate the TRL. The result reflects on the client side.</p>
+                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                            <select name="trl_level" required class="w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                                <option value="" disabled @if(empty($application->payload['trl_level'])) selected @endif>Select TRL 1–9</option>
+                                @foreach([1 => 'TRL 1 — Basic principles observed', 2 => 'TRL 2 — Technology concept formulated', 3 => 'TRL 3 — Experimental proof of concept', 4 => 'TRL 4 — Technology validated in lab', 5 => 'TRL 5 — Technology validated in relevant environment', 6 => 'TRL 6 — Technology demonstrated in relevant environment', 7 => 'TRL 7 — System prototype demonstration in operational environment', 8 => 'TRL 8 — System complete and qualified', 9 => 'TRL 9 — Actual system proven in operational environment'] as $lv => $label)
+                                <option value="{{ $lv }}" @if(($application->payload['trl_level'] ?? null) == $lv) selected @endif>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" name="trl_narrative" value="{{ $application->payload['trl_narrative'] ?? '' }}" placeholder="TRL narrative / notes"
+                                class="w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 placeholder-gray-400">
+                        </div>
+                        <button type="submit" class="mt-3 inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-blue-600 hover:to-blue-500 hover:shadow-lg hover:shadow-blue-200/50 active:scale-95">
+                            Save TRL Rating
+                        </button>
+                    </form>
+
+                    {{-- Schedule approval --}}
+                    @if($application->status === \App\Models\Application::STATUS_FOR_EVALUATION)
+                    <form method="POST" action="{{ route('tech-transfer.approve-schedule', $application) }}" class="rounded-lg border border-emerald-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Meeting Schedule Approval</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Approve the consultation schedule. The client will see a popup to proceed to the TBI office.</p>
+                        <button type="submit" class="mt-3 inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                            Approve Schedule
+                        </button>
+                    </form>
+                    @endif
+
+                    {{-- Post-meeting decision --}}
+                    @if($application->status === \App\Models\Application::STATUS_MEETING_APPROVED)
+                    <form method="POST" action="{{ route('tech-transfer.meeting-decision', $application) }}" class="rounded-lg border border-emerald-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Meeting Decision</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Approve to proceed to requirements, or mark for revision.</p>
+                        <div class="mt-3 flex flex-wrap gap-3">
+                            <button type="submit" name="decision" value="approve" class="inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                                Approve — Proceed to Requirements
+                            </button>
+                            <button type="submit" name="decision" value="revise" class="inline-flex items-center rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-amber-600 hover:to-amber-500 hover:shadow-lg hover:shadow-amber-200/50 active:scale-95">
+                                Revise
+                            </button>
+                        </div>
+                    </form>
+                    @endif
+                    @endif
+                </dd>
+            </div>
+            @endif
                 <dd class="mt-1.5">
                     <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200/50">{{ $application->statusLabel() }}</span>
                     @if($application->status === \App\Models\Application::STATUS_FOR_REVISION)
@@ -357,6 +412,24 @@
                         <p class="text-sm font-medium text-amber-800">This application needs revision. Please update the details and resubmit.</p>
                         @if(auth()->user()->isAdmin() || $application->submitted_by === auth()->user()->id)
                         <a href="{{ route('applications.edit', $application) }}" class="mt-2 inline-flex items-center text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-900">Update &amp; resubmit</a>
+                        @endif
+                    </div>
+                    @elseif($application->status === \App\Models\Application::STATUS_MEETING_APPROVED)
+                    <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                        <p class="text-sm font-medium text-emerald-800">Your schedule has been approved. Please proceed to the USMart TBI Office for your face-to-face meeting.</p>
+                        @if($application->submitted_by === auth()->user()->id)
+                        <button type="button" onclick="document.getElementById('tbi-modal').classList.remove('hidden')" class="mt-2 inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                            Proceed to TBI Office
+                        </button>
+                        @endif
+                    </div>
+                    @elseif($application->status === \App\Models\Application::STATUS_REQUIREMENTS)
+                    <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                        <p class="text-sm font-medium text-emerald-800">Meeting approved. Please submit the required documents to continue.</p>
+                        @if($application->submitted_by === auth()->user()->id)
+                        <a href="#requirements-section" class="mt-2 inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                            Submit Requirements
+                        </a>
                         @endif
                     </div>
                     @elseif($application->status === \App\Models\Application::STATUS_COMPLETED)
@@ -389,6 +462,50 @@
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Remarks</p>
             <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $application->remarks ?: 'No remarks yet.' }}</p>
         </div>
+
+        @if($application->application_type === 'tech_transfer' && $application->status === \App\Models\Application::STATUS_REQUIREMENTS && $application->submitted_by === auth()->user()->id)
+        <div id="requirements-section" class="mt-4 scroll-mt-24 rounded-xl border border-emerald-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-widest">Requirements</span>
+            </div>
+            <h3 class="mt-2 text-base font-semibold text-gray-900">Submit Required Documents</h3>
+            <p class="mt-1 text-sm text-gray-500">Your meeting was approved. Upload the required documents to continue the tech transfer process.</p>
+            <form method="POST" action="{{ route('tech-transfer.requirements', $application) }}" enctype="multipart/form-data" class="mt-4">
+                @csrf
+                <label class="mb-1.5 block text-sm font-medium text-gray-600">Requirements / Documents <span class="text-red-500">*</span></label>
+                <div class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-emerald-200 bg-emerald-50/40 px-6 py-8 text-center transition-all hover:border-emerald-400 hover:bg-emerald-50">
+                    <svg class="h-10 w-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p class="mt-2 text-sm font-medium text-gray-600">Click to select files</p>
+                    <p class="text-xs text-gray-400">PDF, Word, images, ZIP — up to 10 files, 2MB each</p>
+                    <input type="file" name="documents[]" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip" class="mt-3 block w-full max-w-sm cursor-pointer rounded-lg border border-gray-200 bg-white text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-emerald-600">
+                </div>
+                @error('documents')
+                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+                <div id="requirements-preview" class="mt-3 hidden flex-wrap gap-2"></div>
+                <button type="submit" class="mt-4 inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                    Submit Requirements
+                </button>
+            </form>
+        </div>
+        @endif
+
+        @if(!empty($application->payload['requirements']))
+        <div class="mt-4 rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Submitted Requirements</p>
+            <ul class="mt-2 space-y-1">
+                @foreach($application->payload['requirements'] as $doc)
+                <li>
+                    <a href="{{ \Illuminate\Support\Facades\Storage::url($doc) }}" target="_blank" class="inline-flex items-center text-sm text-emerald-700 underline underline-offset-2 hover:text-emerald-900">
+                        <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        {{ basename($doc) }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
     </section>
 
     <aside class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
@@ -409,4 +526,66 @@
         </div>
     </aside>
 </div>
+
+@if($application->application_type === 'tech_transfer' && $application->status === \App\Models\Application::STATUS_MEETING_APPROVED && $application->submitted_by === auth()->user()->id)
+<div id="tbi-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+        <div class="flex items-start justify-between">
+            <div class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <span class="text-[11px] font-semibold text-emerald-700 uppercase tracking-widest">TBI Office Visit</span>
+            </div>
+            <button type="button" onclick="document.getElementById('tbi-modal').classList.add('hidden')" class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <h3 class="mt-3 text-lg font-semibold text-gray-900">Proceed to TBI Office</h3>
+        <p class="mt-2 text-sm text-gray-600">
+            Your consultation schedule has been <span class="font-semibold text-emerald-700">approved</span>. Please proceed to the
+            <span class="font-semibold text-gray-900">USMart TBI Office</span> for your face-to-face meeting.
+        </p>
+        <div class="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+            <p><span class="font-medium text-gray-500">Date:</span> {{ \Carbon\Carbon::parse($application->payload['consultation_date'])->format('F j, Y') }}</p>
+            @if(!empty($application->payload['consultation_time']))
+            <p class="mt-1"><span class="font-medium text-gray-500">Time:</span> {{ \Carbon\Carbon::parse($application->payload['consultation_time'])->format('g:i A') }}</p>
+            @endif
+        </div>
+        <div class="mt-5 flex items-center justify-end gap-3">
+            <button type="button" onclick="document.getElementById('tbi-modal').classList.add('hidden')" class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100">
+                Maybe later
+            </button>
+            <form method="POST" action="{{ route('tech-transfer.proceed-tbi', $application) }}">
+                @csrf
+                <button type="submit" class="inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                    Confirm — I will proceed
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    @if(session('proceed_tbi'))
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('tbi-modal')?.classList.remove('hidden');
+    });
+    @endif
+</script>
+@endif
+
+@if($application->application_type === 'tech_transfer' && $application->status === \App\Models\Application::STATUS_REQUIREMENTS && $application->submitted_by === auth()->user()->id)
+<script>
+    document.querySelector('#requirements-section input[type="file"]')?.addEventListener('change', function() {
+        var preview = document.getElementById('requirements-preview');
+        preview.classList.remove('hidden');
+        preview.classList.add('flex');
+        preview.innerHTML = '';
+        Array.from(this.files).forEach(function(file) {
+            var chip = document.createElement('span');
+            chip.className = 'inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200/50';
+            chip.textContent = file.name;
+            preview.appendChild(chip);
+        });
+    });
+</script>
+@endif
 @endsection
