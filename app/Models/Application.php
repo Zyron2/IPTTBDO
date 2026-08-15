@@ -25,6 +25,13 @@ class Application extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_MEETING_APPROVED = 'meeting_approved';
     public const STATUS_REQUIREMENTS = 'requirements';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_INCUBATION_APPLY = 'incubation_apply';
+    public const STATUS_INCUBATION = 'incubation';
+    public const STATUS_MASTER_CLASS = 'master_class';
+    public const STATUS_STARTUP_ACTIVITIES = 'startup_activities';
+    public const STATUS_MONITORING = 'monitoring';
+    public const STATUS_GRADUATED = 'graduated';
 
     protected $fillable = [
         'submitted_by',
@@ -75,6 +82,13 @@ class Application extends Model
             self::STATUS_COMPLETED => 'Completed',
             self::STATUS_MEETING_APPROVED => 'Meeting Approved',
             self::STATUS_REQUIREMENTS => 'Requirements',
+            self::STATUS_REJECTED => 'Rejected',
+            self::STATUS_INCUBATION_APPLY => 'Incubation Application',
+            self::STATUS_INCUBATION => 'In Incubation Program',
+            self::STATUS_MASTER_CLASS => 'Incubation Master Class',
+            self::STATUS_STARTUP_ACTIVITIES => 'Startup Activities',
+            self::STATUS_MONITORING => 'Progress Monitoring & Evaluation',
+            self::STATUS_GRADUATED => 'Graduated',
         ];
     }
 
@@ -86,6 +100,7 @@ class Application extends Model
             'apply_protection' => 'Apply for IP Protection',
             'incentives' => 'Intent to Receive Incentives',
             'tech_transfer' => 'Tech Transfer / Commercialization',
+            'bizdev' => 'Business Development & Incubation',
             'consultation' => 'Consultation',
             'patent_form' => 'Patent Form',
             'um_form' => 'UM Form',

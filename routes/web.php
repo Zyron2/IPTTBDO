@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BizDevController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DropboxController;
 use App\Http\Controllers\NotificationController;
@@ -47,6 +48,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/tech-transfer/{application}/proceed-tbi', [TechTransferController::class, 'proceedToTbi'])->name('tech-transfer.proceed-tbi');
     Route::post('/tech-transfer/{application}/meeting-decision', [TechTransferController::class, 'meetingDecision'])->name('tech-transfer.meeting-decision');
     Route::post('/tech-transfer/{application}/requirements', [TechTransferController::class, 'submitRequirements'])->name('tech-transfer.requirements');
+    Route::get('/bizdev', [BizDevController::class, 'index'])->name('bizdev.index');
+    Route::get('/bizdev/apply', [BizDevController::class, 'apply'])->name('bizdev.apply');
+    Route::post('/bizdev', [BizDevController::class, 'store'])->name('bizdev.store');
+    Route::get('/bizdev/data', [BizDevController::class, 'data'])->name('bizdev.data');
+    Route::post('/bizdev/{application}/approve-schedule', [BizDevController::class, 'approveSchedule'])->name('bizdev.approve-schedule');
+    Route::post('/bizdev/{application}/meeting-decision', [BizDevController::class, 'meetingDecision'])->name('bizdev.meeting-decision');
+    Route::get('/bizdev/{application}/incubation', [BizDevController::class, 'incubation'])->name('bizdev.incubation');
+    Route::post('/bizdev/{application}/incubation', [BizDevController::class, 'storeIncubation'])->name('bizdev.incubation.store');
+    Route::post('/bizdev/{application}/evaluate', [BizDevController::class, 'evaluate'])->name('bizdev.evaluate');
+    Route::post('/bizdev/{application}/advance-stage', [BizDevController::class, 'advanceStage'])->name('bizdev.advance-stage');
     Route::get('/applications/{application}/download', [ApplicationController::class, 'download'])->name('applications.download');
     Route::resource('applications', ApplicationController::class)->except(['destroy']);
 });

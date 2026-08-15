@@ -347,6 +347,164 @@
                     @endif
                 </dd>
             </div>
+            @elseif($application->application_type === 'bizdev')
+            <div class="rounded-lg border border-purple-100 bg-purple-50/50 p-4 sm:col-span-2 transition hover:bg-purple-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-purple-600">Business Dev &amp; Incubation Details</dt>
+                <dd class="mt-2 grid gap-3 sm:grid-cols-2">
+                    @if(!empty($application->payload['consultation_date']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Consultation Schedule:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($application->payload['consultation_date'])->format('F j, Y') }} @if(!empty($application->payload['consultation_time'])) at {{ \Carbon\Carbon::parse($application->payload['consultation_time'])->format('g:i A') }} @endif</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['track']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Service Track:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['track'])) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['tbi']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">TBI:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords($application->payload['tbi']) }} TBI</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['startup_name']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Startup:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ $application->payload['startup_name'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['team_leader']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Team Leader:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ $application->payload['team_leader'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['skills']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Required Skills:</span>
+                        <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['skills'] }}</p>
+                    </div>
+                    @endif
+                    @if(isset($application->payload['trl']) || isset($application->payload['brl']) || isset($application->payload['irl']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Readiness Assessments:</span>
+                        <div class="mt-1 flex flex-wrap gap-2">
+                            @foreach(['trl' => 'TRL', 'brl' => 'BRL', 'irl' => 'IRL'] as $key => $label)
+                            @if(isset($application->payload[$key]))
+                            <span class="inline-flex rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700 ring-1 ring-purple-200/50">{{ $label }} {{ $application->payload[$key] }}/9</span>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['technology']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Technology (Invention):</span>
+                        <p class="mt-0.5 whitespace-pre-line text-sm text-gray-900">{{ $application->payload['technology'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['overview']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Startup Overview:</span>
+                        <p class="mt-0.5 whitespace-pre-line text-sm text-gray-900">{{ $application->payload['overview'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['letter_of_intent']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Letter of Intent:</span>
+                        <div class="mt-1">
+                            <a href="{{ \Illuminate\Support\Facades\Storage::url($application->payload['letter_of_intent']) }}" target="_blank" class="inline-flex items-center text-sm text-purple-700 underline underline-offset-2 hover:text-purple-900">
+                                <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                {{ basename($application->payload['letter_of_intent']) }}
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['team_leader_id']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Team Leader's ID:</span>
+                        <div class="mt-1">
+                            <a href="{{ \Illuminate\Support\Facades\Storage::url($application->payload['team_leader_id']) }}" target="_blank" class="inline-flex items-center text-sm text-purple-700 underline underline-offset-2 hover:text-purple-900">
+                                <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                {{ basename($application->payload['team_leader_id']) }}
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                </dd>
+            </div>
+            @endif
+            @if($application->application_type === 'bizdev' && auth()->user()->isAdmin())
+            <div class="rounded-lg border border-purple-200 bg-purple-50/70 p-4 sm:col-span-2 transition hover:bg-purple-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-purple-700">Admin Business Dev &amp; Incubation Actions</dt>
+                <dd class="mt-3 space-y-4">
+                    {{-- Schedule approval --}}
+                    @if($application->status === \App\Models\Application::STATUS_FOR_EVALUATION && ($application->payload['track'] ?? null) !== 'apply_incubation' && empty($application->payload['technology']))
+                    <form method="POST" action="{{ route('bizdev.approve-schedule', $application) }}" class="rounded-lg border border-purple-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Meeting Schedule Approval</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Approve the consultation schedule. The client will proceed to the face-to-face meeting.</p>
+                        <button type="submit" class="mt-3 inline-flex items-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-purple-600 hover:to-purple-500 hover:shadow-lg hover:shadow-purple-200/50 active:scale-95">
+                            Approve Schedule
+                        </button>
+                    </form>
+                    @endif
+
+                    {{-- Post-meeting decision --}}
+                    @if($application->status === \App\Models\Application::STATUS_MEETING_APPROVED)
+                    <form method="POST" action="{{ route('bizdev.meeting-decision', $application) }}" class="rounded-lg border border-purple-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Meeting Decision</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Approve to proceed (or advance to incubation), or reject with the standard message.</p>
+                        <div class="mt-3 flex flex-wrap gap-3">
+                            <button type="submit" name="decision" value="approve" class="inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                                Approve
+                            </button>
+                            <button type="submit" name="decision" value="reject" class="inline-flex items-center rounded-lg bg-gradient-to-r from-red-500 to-red-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-red-600 hover:to-red-500 hover:shadow-lg hover:shadow-red-200/50 active:scale-95">
+                                Reject
+                            </button>
+                        </div>
+                    </form>
+                    @endif
+
+                    {{-- Incubation application evaluation --}}
+                    @if($application->status === \App\Models\Application::STATUS_FOR_EVALUATION && !empty($application->payload['technology']))
+                    <form method="POST" action="{{ route('bizdev.evaluate', $application) }}" class="rounded-lg border border-purple-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Incubation Application Evaluation</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Approve to enter the incubation program, or mark for revision.</p>
+                        <div class="mt-3 flex flex-wrap gap-3">
+                            <button type="submit" name="decision" value="approve" class="inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
+                                Approve — Enter Incubation
+                            </button>
+                            <button type="submit" name="decision" value="revise" class="inline-flex items-center rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-amber-600 hover:to-amber-500 hover:shadow-lg hover:shadow-amber-200/50 active:scale-95">
+                                For Revision
+                            </button>
+                        </div>
+                    </form>
+                    @endif
+
+                    {{-- Program stage advancement --}}
+                    @if(in_array($application->status, [
+                        \App\Models\Application::STATUS_INCUBATION,
+                        \App\Models\Application::STATUS_MASTER_CLASS,
+                        \App\Models\Application::STATUS_STARTUP_ACTIVITIES,
+                        \App\Models\Application::STATUS_MONITORING,
+                        \App\Models\Application::STATUS_GRADUATED,
+                    ]))
+                    <form method="POST" action="{{ route('bizdev.advance-stage', $application) }}" class="rounded-lg border border-purple-100 bg-white p-4">
+                        @csrf
+                        <p class="text-sm font-semibold text-gray-900">Incubation Program Stage</p>
+                        <p class="mt-0.5 text-xs text-gray-500">Advance through: Master Class → Startup Activities → Progress Monitoring → Graduation → Completion.</p>
+                        <button type="submit" class="mt-3 inline-flex items-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-purple-600 hover:to-purple-500 hover:shadow-lg hover:shadow-purple-200/50 active:scale-95">
+                            Advance Stage
+                        </button>
+                    </form>
+                    @endif
+                </dd>
+            </div>
             @endif
             @if($application->application_type === 'tech_transfer' && auth()->user()->isAdmin())
             <div class="rounded-lg border border-emerald-200 bg-emerald-50/70 p-4 sm:col-span-2 transition hover:bg-emerald-50 hover:shadow-sm">
@@ -410,14 +568,16 @@
                     @if($application->status === \App\Models\Application::STATUS_FOR_REVISION)
                     <div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                         <p class="text-sm font-medium text-amber-800">This application needs revision. Please update the details and resubmit.</p>
-                        @if(auth()->user()->isAdmin() || $application->submitted_by === auth()->user()->id)
+                        @if($application->application_type === 'bizdev' && $application->submitted_by === auth()->user()->id)
+                        <a href="{{ route('bizdev.incubation', $application) }}" class="mt-2 inline-flex items-center text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-900">Update incubation application &amp; resubmit</a>
+                        @elseif(auth()->user()->isAdmin() || $application->submitted_by === auth()->user()->id)
                         <a href="{{ route('applications.edit', $application) }}" class="mt-2 inline-flex items-center text-sm font-semibold text-amber-700 underline underline-offset-4 hover:text-amber-900">Update &amp; resubmit</a>
                         @endif
                     </div>
                     @elseif($application->status === \App\Models\Application::STATUS_MEETING_APPROVED)
                     <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                        <p class="text-sm font-medium text-emerald-800">Your schedule has been approved. Please proceed to the USMart TBI Office for your face-to-face meeting.</p>
-                        @if($application->submitted_by === auth()->user()->id)
+                        <p class="text-sm font-medium text-emerald-800">Your schedule has been approved. Please proceed to the {{ ($application->payload['tbi'] ?? null) === 'agraqua' ? 'AGRIAQUA' : 'USMart' }} TBI Office for your face-to-face meeting.</p>
+                        @if($application->submitted_by === auth()->user()->id && $application->application_type === 'tech_transfer')
                         <button type="button" onclick="document.getElementById('tbi-modal').classList.remove('hidden')" class="mt-2 inline-flex items-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 active:scale-95">
                             Proceed to TBI Office
                         </button>
@@ -435,6 +595,30 @@
                     @elseif($application->status === \App\Models\Application::STATUS_COMPLETED)
                     <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
                         <p class="text-sm font-medium text-emerald-800">This application has been registered and is now completed.</p>
+                    </div>
+                    @elseif($application->application_type === 'bizdev' && $application->status === \App\Models\Application::STATUS_INCUBATION_APPLY)
+                    <div class="mt-3 rounded-lg border border-purple-200 bg-purple-50 p-3">
+                        <p class="text-sm font-medium text-purple-800">Your application is ready for the incubation pipeline. Please complete the incubation application.</p>
+                        @if($application->submitted_by === auth()->user()->id)
+                        <a href="{{ route('bizdev.incubation', $application) }}" class="mt-2 inline-flex items-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-400 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-purple-600 hover:to-purple-500 hover:shadow-lg hover:shadow-purple-200/50 active:scale-95">
+                            Continue to Apply Incubation
+                        </a>
+                        @endif
+                    </div>
+                    @elseif($application->application_type === 'bizdev' && $application->status === \App\Models\Application::STATUS_REJECTED)
+                    <div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+                        <p class="text-sm font-medium text-red-800">{{ $application->remarks }}</p>
+                    </div>
+                    @elseif($application->application_type === 'bizdev' && in_array($application->status, [
+                        \App\Models\Application::STATUS_INCUBATION,
+                        \App\Models\Application::STATUS_MASTER_CLASS,
+                        \App\Models\Application::STATUS_STARTUP_ACTIVITIES,
+                        \App\Models\Application::STATUS_MONITORING,
+                        \App\Models\Application::STATUS_GRADUATED,
+                    ]))
+                    <div class="mt-3 rounded-lg border border-purple-200 bg-purple-50 p-3">
+                        <p class="text-sm font-medium text-purple-800">You are in the incubation program. Current stage: <span class="font-semibold">{{ $application->statusLabel() }}</span>.</p>
+                        <p class="mt-1 text-xs text-purple-600">The incubation lifecycle: Master Class → Startup Activities → Progress Monitoring &amp; Evaluation → Graduation.</p>
                     </div>
                     @else
                     <div class="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">

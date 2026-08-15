@@ -51,7 +51,7 @@
             </div>
         </a>
 
-        <a href="{{ route('applications.create', ['branch' => 'business_development']) }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-purple-200">
+        <a href="{{ route('bizdev.index') }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-purple-200">
             <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div class="relative">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition-all group-hover:bg-purple-100 group-hover:scale-110 group-hover:shadow-sm">
@@ -60,7 +60,7 @@
                     </svg>
                 </div>
                 <h3 class="mt-4 text-lg font-semibold text-gray-900">Business Dev</h3>
-                <p class="mt-1 text-sm text-gray-500">Business development, partnerships, growth</p>
+                <p class="mt-1 text-sm text-gray-500">Consultation, mentoring, pitching &amp; incubation</p>
                 <span class="mt-3 inline-flex items-center text-sm font-medium text-amber-600 transition-all group-hover:text-amber-700 group-hover:gap-1.5">
                     Start submission
                     <svg class="ml-1 h-4 w-4 transition-all group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
