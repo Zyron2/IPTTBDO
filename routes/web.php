@@ -4,6 +4,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DropboxController;
+use App\Http\Controllers\TechTransferController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -33,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [DropboxController::class, 'index'])->name('documents.index');
     Route::post('/documents', [DropboxController::class, 'store'])->name('documents.store');
     Route::delete('/documents/{file}', [DropboxController::class, 'destroy'])->name('documents.destroy');
+    Route::get('/tech-transfer', [TechTransferController::class, 'index'])->name('tech-transfer.index');
+    Route::get('/tech-transfer/apply', [TechTransferController::class, 'apply'])->name('tech-transfer.apply');
+    Route::post('/tech-transfer', [TechTransferController::class, 'store'])->name('tech-transfer.store');
+    Route::get('/tech-transfer/data', [TechTransferController::class, 'data'])->name('tech-transfer.data');
     Route::get('/applications/{application}/download', [ApplicationController::class, 'download'])->name('applications.download');
     Route::resource('applications', ApplicationController::class)->except(['destroy']);
 });

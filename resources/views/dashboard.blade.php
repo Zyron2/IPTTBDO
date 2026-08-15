@@ -32,7 +32,7 @@
             </div>
         </a>
 
-        <a href="{{ route('applications.create', ['branch' => 'tech_transfer']) }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-emerald-200">
+        <a href="{{ route('tech-transfer.index') }}" class="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-emerald-200">
             <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div class="relative">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-all group-hover:bg-emerald-100 group-hover:scale-110 group-hover:shadow-sm">

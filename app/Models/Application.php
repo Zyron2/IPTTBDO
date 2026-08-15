@@ -81,6 +81,7 @@ class Application extends Model
             'claims_drafting' => 'IP Claims Drafting',
             'apply_protection' => 'Apply for IP Protection',
             'incentives' => 'Intent to Receive Incentives',
+            'tech_transfer' => 'Tech Transfer / Commercialization',
             'consultation' => 'Consultation',
             'patent_form' => 'Patent Form',
             'um_form' => 'UM Form',

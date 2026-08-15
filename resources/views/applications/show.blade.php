@@ -274,7 +274,82 @@
                     @endif
                 </dd>
             </div>
+            @elseif($application->application_type === 'tech_transfer')
+            <div class="rounded-lg border border-emerald-100 bg-emerald-50/50 p-4 sm:col-span-2 transition hover:bg-emerald-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-emerald-600">Tech Transfer Request Details</dt>
+                <dd class="mt-2 grid gap-3 sm:grid-cols-2">
+                    @if(!empty($application->payload['consultation_date']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Consultation Schedule:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($application->payload['consultation_date'])->format('F j, Y') }} @if(!empty($application->payload['consultation_time'])) at {{ \Carbon\Carbon::parse($application->payload['consultation_time'])->format('g:i A') }} @endif</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->proponent_name))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Proponent:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ $application->proponent_name }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['services']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Service Pathways:</span>
+                        <div class="mt-1 flex flex-wrap gap-2">
+                            @foreach($application->payload['services'] as $service)
+                            <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200/50">{{ ucwords(str_replace('_', ' ', $service)) }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['trl_level']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">TRL Level:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">TRL {{ $application->payload['trl_level'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['trl_narrative']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">TRL Narrative / Report:</span>
+                        <p class="mt-0.5 whitespace-pre-line text-sm text-gray-900">{{ $application->payload['trl_narrative'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['packaging_service']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Technology Packaging Service:</span>
+                        <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['packaging_service'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['mode_of_transfer']))
+                    <div>
+                        <span class="text-xs font-medium text-gray-500">Mode of Transfer:</span>
+                        <p class="mt-0.5 text-sm font-medium text-gray-900">{{ ucwords(str_replace('_', ' ', $application->payload['mode_of_transfer'])) }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['other_service_details']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Other Services Details:</span>
+                        <p class="mt-0.5 text-sm text-gray-900">{{ $application->payload['other_service_details'] }}</p>
+                    </div>
+                    @endif
+                    @if(!empty($application->payload['documents']) && is_array($application->payload['documents']))
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-medium text-gray-500">Supporting Documents:</span>
+                        <ul class="mt-1 space-y-1">
+                            @foreach($application->payload['documents'] as $doc)
+                            <li>
+                                <a href="{{ \Illuminate\Support\Facades\Storage::url($doc) }}" target="_blank" class="inline-flex items-center text-sm text-emerald-700 underline underline-offset-2 hover:text-emerald-900">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    {{ basename($doc) }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                </dd>
+            </div>
             @endif
+            <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition hover:bg-gray-50 hover:shadow-sm">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Status</dt>
                 <dd class="mt-1.5">
                     <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200/50">{{ $application->statusLabel() }}</span>
                     @if($application->status === \App\Models\Application::STATUS_FOR_REVISION)
